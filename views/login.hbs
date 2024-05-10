@@ -1,0 +1,25 @@
+<div class="row">
+    <div class="col-md-6 m-auto">
+        <div class="container mt-5 pl-5">
+            <h2 class="text-center">Login</h2>
+            <h4 class="text-danger">{{msg}}</h4>
+            <form action="/login" method="post">
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" name="username" placeholder="Enter Name">
+                </div>
+                <br>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password" placeholder="Password">
+                </div>
+                <br>
+
+                <a href="/signup">Create new account ?</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="submit" class="btn btn-primary float-right">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
