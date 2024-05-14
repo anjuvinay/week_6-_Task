@@ -15,6 +15,8 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
+
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -23,12 +25,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
   secret:"keyboard cat",
-  resave:false,
-  saveUninitialized:true,
+  resave:true,
+  saveUninitialized:false,
+  cookie:{
+    sameSite:'strict',
+    maxAge:60*1000*60
+  }
 }))
 
-app.use(nocache());
 
+app.use(nocache());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

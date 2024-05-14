@@ -8,11 +8,10 @@ const username="anju"
 const password="12345"
 
 
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   if(req.session.user){
-    res.render('index')
+    res.redirect('/home')
   }
   else{
     if(req.session.passwordwrong){
@@ -65,7 +64,8 @@ router.get('/home', function(req, res, next) {
     price:18000
    },]
   if(req.session.user){
-    res.render('index',{items})
+    user=req.session.user
+    res.render('index',{items,user})
   }
   else{
     if(req.session.passwordwrong){
