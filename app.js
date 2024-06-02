@@ -5,15 +5,30 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session=require('express-session')
 const nocache=require('nocache')
+var hbs=require('express-handlebars')
+var fileUpload = require('express-fileupload')
+const mongoose=require('mongoose')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+
+var userRouter = require('./routes/user');
+var adminRouter = require('./routes/admin');
 
 var app = express();
+
+// connect to mongoDB
+mongoose.connect("mongodb://127.0.0.1:27017/nodejs")
+
+const db=mongoose.connection;
+db.on("error",console.error.bind(console,"connection error:"))
+db.once("open",function(){
+  console.log("MongoDB Connection Succesfull")
+})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+app.engine('hbs',hbs.engine({extname:'hbs',
+defaultLayout:'layout',layoutsDir:__dirname+'/views/layout/',partialsDir:__dirname+'/views/partials/'}))
 
 
 
@@ -22,6 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(fileUpload())
 
 app.use(session({
   secret:"keyboard cat",
@@ -36,8 +52,9 @@ app.use(session({
 
 app.use(nocache());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
+app.use('/', userRouter);
+app.use('/admin', adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
