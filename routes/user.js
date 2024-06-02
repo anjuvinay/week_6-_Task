@@ -2,10 +2,8 @@ var express = require('express');
 var router = express.Router();
 const app=express()
 const session=require('express-session')
+const logInCollection=require('../config/userDB')
 
-
-const username="anju"
-const password="12345"
 
 
 /* GET home page. */
@@ -22,17 +20,44 @@ router.get('/', function(req, res, next) {
 }
 });
 
-router.post('/login', function(req, res, next) {
+
+router.post('/login', async (req, res, next)=> {
   console.log(req.body)
-  if(req.body.username===username && req.body.password===password){
-    req.session.user=req.body.username
-    res.redirect('/home')
+  try{
+    const check=await logInCollection.findOne({name:req.body.name})
+    console.log(check)
+
+    if(check.password===req.body.password){
+      req.session.user=req.body.name
+      res.redirect('/home')
+    }
+    else{
+      res.redirect('/')
+    }
   }
-  else{
-    req.session.passwordwrong=true
+  catch{
     res.redirect('/')
   }
 });
+
+
+router.get('/signup', function(req, res, next) {
+  res.render('user/signup');
+})
+
+
+router.post('/signup', async (req, res, next)=> {
+  console.log(req.body)
+  const data={
+    name:req.body.username,
+    email:req.body.Email,
+    password:req.body.password
+  }
+  await logInCollection.insertMany([data])
+  res.redirect('/')
+
+});
+
 
 router.get('/home', function(req, res, next) {
   let items=[{

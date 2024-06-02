@@ -7,7 +7,8 @@ const session=require('express-session')
 const nocache=require('nocache')
 var hbs=require('express-handlebars')
 var fileUpload = require('express-fileupload')
-const mongoose=require('mongoose')
+var db=require('./config/userDB')
+
 
 
 var userRouter = require('./routes/user');
@@ -15,14 +16,6 @@ var adminRouter = require('./routes/admin');
 
 var app = express();
 
-// connect to mongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/nodejs")
-
-const db=mongoose.connection;
-db.on("error",console.error.bind(console,"connection error:"))
-db.once("open",function(){
-  console.log("MongoDB Connection Succesfull")
-})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
