@@ -5,9 +5,17 @@ const session=require('express-session')
 const logInCollection=require('../config/userDB')
 
 
+const verifyUserLogin = (req, res, next)=>{
+  console.log(req.session.user)
+  if(req.session.user){
+    next()
+  }else{
+    res.redirect('/')
+  }
+}
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', async (req, res, next)=> {
   if(req.session.user){
     res.redirect('/home')
   }
@@ -16,7 +24,9 @@ router.get('/', function(req, res, next) {
       res.render('user/login',{msg:"invalid credentials"});
       req.session.passwordwrong=false
     }
-  res.render('user/login');
+   else{
+    res.render('user/login');
+   }
 }
 });
 
@@ -32,10 +42,12 @@ router.post('/login', async (req, res, next)=> {
       res.redirect('/home')
     }
     else{
+      req.session.passwordwrong=true
       res.redirect('/')
     }
   }
   catch{
+    req.session.passwordwrong=true
     res.redirect('/')
   }
 });
@@ -59,7 +71,7 @@ router.post('/signup', async (req, res, next)=> {
 });
 
 
-router.get('/home', function(req, res, next) {
+router.get('/home', verifyUserLogin, function(req, res, next) {
   let items=[{
     image:'/images/iphone 15.jpeg',
     name:"Iphone 15",
@@ -88,20 +100,10 @@ router.get('/home', function(req, res, next) {
     description:"512 GB",
     price:18000
    },]
-  if(req.session.user){
+  
     user=req.session.user
     res.render('user/index',{items,user,admin:false})
-  }
-  else{
-    if(req.session.passwordwrong){
-      req.session.passwordwrong=false
-      res.render('user/login',{msg:"invalid credentials"});
-    }
-    else{
-      res.render('user/login');
-    }
-  
-}
+
 });
 
 router.get('/logout', function(req, res, next) {

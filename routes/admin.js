@@ -8,8 +8,17 @@ var ObjectId = require('mongodb').ObjectId
 
 
 
+const verifyAdminLogin = (req, res, next)=>{
+  console.log(req.session.admin)
+  if(req.session.admin){
+    next()
+  }else{
+    res.redirect('/admin/')
+  }
+}
 
-/* GET users listing. */
+
+//admin login get and post methods
 
 router.get('/', function(req, res, next) {
   if(req.session.admin){
@@ -20,7 +29,9 @@ router.get('/', function(req, res, next) {
       res.render('admin/login',{msg:"invalid credentials"});
       req.session.passwordwrong=false
     }
-  res.render('admin/login');
+    else{
+      res.render('admin/login');
+    }
 }
 });
 
@@ -36,14 +47,18 @@ router.post('/login', async (req, res, next)=> {
       res.redirect('/admin/home')
     }
     else{
+      req.session.passwordwrong=true
       res.redirect('/admin/')
     }
   }
   catch{
-    res.send("Wrong details")
+    req.session.passwordwrong=true
+    res.redirect('/admin/')
   }
 });
 
+
+//admin signup get and post methods
 
 router.get('/signup', function(req, res, next) {
   res.render('admin/signup');
@@ -63,6 +78,7 @@ router.post('/signup', async (req, res, next)=> {
 });
 
 
+//admin home page
 
 router.get('/home', async (req, res, next)=> {
 
@@ -85,12 +101,20 @@ router.get('/home', async (req, res, next)=> {
 }
 });
 
-router.get('/add-user', function(req, res, next) {
+// add user get and post methods 
+
+router.get('/add-user', verifyAdminLogin, function(req, res, next) {
   admin=req.session.admin
-  res.render('admin/add-user',{admin})
+  if(admin){
+    res.render('admin/add-user',{admin})
+  }
+  else{
+    res.redirect('/admin/')
+  }
+  
 });
 
-router.post('/add-user',async (req,res)=>{
+router.post('/add-user',verifyAdminLogin, async (req,res)=>{
   console.log(req.body)
   const data={
     name:req.body.username,
@@ -101,15 +125,18 @@ router.post('/add-user',async (req,res)=>{
   res.redirect('/admin/')
 })
 
-router.get('/delete-user/:id',async (req,res)=>{
+// delete user
+
+router.get('/delete-user/:id', verifyAdminLogin ,async (req,res)=>{
   let proId=req.params.id
   console.log(proId)
   await logInCollection.deleteOne({ _id:new ObjectId(proId) })
     res.redirect('/admin/home')
 })
 
+// edit user get and post method
 
-router.get('/edit-user/:id', async (req,res)=>{
+router.get('/edit-user/:id', verifyAdminLogin, async (req,res)=>{
   admin=req.session.admin
   let proId=req.params.id
   const user=await logInCollection.findOne({ _id:new ObjectId(proId) }).lean()
@@ -129,6 +156,8 @@ router.post('/edit-user/:id',async (req,res)=>{
   await logInCollection.updateOne({ _id:new ObjectId(proId) },{ $set: data })
     res.redirect('/admin/home')
 })
+
+// admin logout
 
 router.get('/log-out', function(req, res, next) {
   req.session.destroy()

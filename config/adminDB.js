@@ -2,7 +2,7 @@ const mongoose=require('mongoose')
 
 mongoose.connect("mongodb://localhost:27017/cartDB")
 .then(()=>{
-    console.log("mongodb connected")
+    console.log("Admin connected to database")
 })
 .catch(()=>{
     console.log("failed to connect")
